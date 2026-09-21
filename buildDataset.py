@@ -31,6 +31,28 @@ else:
     print(f"\nTotal rows across ALL recordings: {len(combinedDataFile)}") #print total numbers
     print("\nHow many rows per activity: ") #print heading before displaying number of rows
     print(combinedDataFile["label"].value_counts()) #count how many times an activity appears telling us how much data we have
+
+    #show the minimum and maximum value for every numeric sensor column
+    numericColumns = combinedDataFile.select_dtypes(include="number").columns.tolist()
+    print("\nOverall range for each numeric column:")
+    print(combinedDataFile[numericColumns].agg(["min", "max"]).T.to_string())
+
+    #show the range of each sensor column separately for every activity
+    print("\nRange for each activity:")
+    activityRanges = combinedDataFile.groupby("label")[numericColumns].agg(["min", "max"])
+    print(activityRanges.to_string())
+
+    #show the size and time range of every original recording
+    recordingSummary = combinedDataFile.groupby(["label", "sourceFile"]).agg(
+        rows=("label", "size"),
+        startTime=("seconds_elapsed", "min"),
+        endTime=("seconds_elapsed", "max"),
+    )
+    recordingSummary["durationSeconds"] = (
+        recordingSummary["endTime"] - recordingSummary["startTime"]
+    )
+    print("\nRange and size for each recording:")
+    print(recordingSummary.to_string())
     
     #creat matplotlib figre and size
     plt.figure(figsize=(10, 5))
