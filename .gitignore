@@ -1,0 +1,8 @@
+*.npz
+*.keras
+fall_scores.csv
+__pycache__/
+tf-env/
+fall-detection-env/
+venv/
+.venv/
